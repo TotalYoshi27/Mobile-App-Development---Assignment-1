@@ -18,6 +18,9 @@ import android.widget.Spinner;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.widget.Button;
+import android.widget.Toast;
+
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link SelectEditRestaurantV2#newInstance} factory method to
@@ -37,6 +40,7 @@ public class SelectEditRestaurantV2 extends Fragment {
     private Spinner restaurantSpinner;
     private List<String> restaurantID;
     private RestaurantDataBaseManager mydManager;
+    private Button editRestaurantButton;
 
     public SelectEditRestaurantV2() {
         // Required empty public constructor
@@ -70,6 +74,7 @@ public class SelectEditRestaurantV2 extends Fragment {
     }
 
     @Override
+    /*
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
@@ -118,6 +123,77 @@ public class SelectEditRestaurantV2 extends Fragment {
 
             }
         });
+        return editView;
+    }
+    */
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        View editView = inflater.inflate(R.layout.fragment_select_edit_restaurant_v2, container, false);
+
+        //link variable names declared on top with the UI controls
+        restaurantSpinner = editView.findViewById(R.id.restaurant_spinner);
+        editRestaurantButton = editView.findViewById(R.id.editRestaurantButton);
+
+        mydManager = new RestaurantDataBaseManager(getContext());
+        restaurantID = new ArrayList<>();
+
+        // Retrieve all Restaurant IDs from RestaurantDataBaseManager
+        Cursor cursor = mydManager.getAllResRecords();
+        if (cursor != null) {
+            while (cursor.moveToNext()) {
+                String restaurantId = cursor.getString(0);
+                restaurantID.add(restaurantId);
+            }
+            cursor.close();
+        }
+
+        // Set up Spinner with existing Restaurant IDs
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                requireContext(),
+                android.R.layout.simple_spinner_item,
+                restaurantID
+        );
+
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        restaurantSpinner.setAdapter(adapter);
+
+        // Check if there are any restaurant records
+        if (restaurantID.isEmpty()) {
+            editRestaurantButton.setEnabled(false);
+            Toast.makeText(getContext(), "No restaurants available to edit", Toast.LENGTH_SHORT).show();
+        }
+
+        // Open the selected restaurant when the Edit button is clicked
+        editRestaurantButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                if (restaurantID.isEmpty()) {
+                    Toast.makeText(getContext(), "No restaurants available to edit", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                String selectedRestaurantId = restaurantSpinner.getSelectedItem().toString();
+
+                Bundle bundle = new Bundle();
+                bundle.putString("RestaurantID", selectedRestaurantId);
+
+                EditRestaurant editRestaurant = new EditRestaurant();
+                editRestaurant.setArguments(bundle);
+
+                //create an instance of FragmentManager
+                androidx.fragment.app.FragmentManager fm = getActivity().getSupportFragmentManager();
+
+                // create a FragmentTransaction to begin the transaction and replace the Fragment
+                // with new Fragment
+                FragmentTransaction fragmentTransaction = fm.beginTransaction();
+                fragmentTransaction.replace(R.id.frameLayout, editRestaurant);
+                fragmentTransaction.addToBackStack(null);
+                fragmentTransaction.commit(); // save the changes
+            }
+        });
+
         return editView;
     }
 }

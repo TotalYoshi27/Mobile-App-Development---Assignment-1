@@ -13,6 +13,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+import androidx.appcompat.app.AlertDialog;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -89,17 +90,119 @@ public class EditRestaurant extends Fragment {
         if(bundle != null){
             //get each value from bundle
             String passedRestaurantID = bundle.getString("RestaurantID");
+            LoadResInfo(passedRestaurantID);
         }
-        /* Attempt at Editing Resources for Restaurant
+        // Update restaurant record when the Edit button is clicked
         edit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 updateResInfo();
             }
         });
-         */
+
+        // Delete restaurant record when the Delete button is clicked
+        delete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new AlertDialog.Builder(requireContext())
+                        .setTitle("Delete Restaurant")
+                        .setMessage("Are you sure you want to delete this restaurant?")
+                        .setPositiveButton("Yes", (dialog, which) -> {
+                            deleteRes();
+                        })
+                        .setNegativeButton("No", null)
+                        .show();
+            }
+        });
         return editView;
     }
+
+    // Attempt at loading Resources of Restaurant
+    private void LoadResInfo(String restaurantID) {
+        Cursor cursor = ResDatabase.getResByID(restaurantID);
+
+        if (cursor != null && cursor.moveToFirst()) {
+            id.setText(cursor.getString(0));
+            n.setText(cursor.getString(1));
+            sf.setText(cursor.getString(2));
+            loc.setText(cursor.getString(3));
+            moc.setText(String.valueOf(cursor.getDouble(4)));
+
+            response.setText("Restaurant details loaded successfully");
+
+            cursor.close();
+        } else {
+            response.setText("Restaurant could not be found");
+
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+
+        // Prevent the primary key from being changed
+        id.setEnabled(false);
+    }
+
+    // Attempt at updating Restaurant Records
+    private void updateResInfo() {
+        String restaurantID = id.getText().toString().trim();
+        String name = n.getText().toString().trim();
+        String style = sf.getText().toString().trim();
+        String location = loc.getText().toString().trim();
+        String minOrderChargeText = moc.getText().toString().trim();
+
+        if (name.isEmpty() || style.isEmpty() || location.isEmpty() || minOrderChargeText.isEmpty()) {
+            Toast.makeText(getContext(), "Please fill in all fields", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        double minOrderCharge;
+
+        try {
+            minOrderCharge = Double.parseDouble(minOrderChargeText);
+
+            if (minOrderCharge < 0) {
+                Toast.makeText(getContext(), "Minimum order charge cannot be negative", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+        } catch (NumberFormatException e) {
+            Toast.makeText(getContext(), "Please enter a valid minimum order charge", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        int rowsUpdated = ResDatabase.updateRowsRestaurant(
+                restaurantID,
+                name,
+                style,
+                location,
+                minOrderCharge
+        );
+
+        if (rowsUpdated > 0) {
+            Toast.makeText(getContext(), "Restaurant updated successfully", Toast.LENGTH_SHORT).show();
+            response.setText("Restaurant updated successfully");
+        } else {
+            Toast.makeText(getContext(), "Restaurant could not be updated", Toast.LENGTH_SHORT).show();
+            response.setText("Restaurant could not be updated");
+        }
+    }
+
+    // Attempt at deleting Restaurant Records
+    private void deleteRes() {
+        String restaurantID = id.getText().toString();
+
+        int rowsDeleted = ResDatabase.deleteRes(restaurantID);
+
+        if (rowsDeleted > 0) {
+            Toast.makeText(getContext(), "Restaurant deleted successfully", Toast.LENGTH_SHORT).show();
+
+            requireActivity().getSupportFragmentManager().popBackStack();
+        } else {
+            Toast.makeText(getContext(), "Restaurant could not be deleted", Toast.LENGTH_SHORT).show();
+        }
+    }
+
     /* Attempt at loading Resources of Restaurant
     private void LoadResInfo() {
         Cursor cursor = ResDatabase.getResByID();

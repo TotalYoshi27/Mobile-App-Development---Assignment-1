@@ -68,7 +68,10 @@ public class RestaurantDataBaseManager {
             return true;
         }
     }
-    // To retrieve restaurant data from array
+
+
+    // To retrieve restaurant data from array - Original
+    /*
     public ArrayList<String> retrieveRowsRestaurant() {
         ArrayList<String> RestaurantInfoRows = new ArrayList<>();;
         String[] columns = new String[] {"Restaurant_ID", "Name", "Style_Of_Food", "Location", "Minimum_Order_Charge"};
@@ -87,13 +90,43 @@ public class RestaurantDataBaseManager {
         }
         return RestaurantInfoRows;
     }
+    */
+
+    // To retrieve restaurant data from array
+    public ArrayList<String> retrieveRowsRestaurant() {
+        ArrayList<String> RestaurantInfoRows = new ArrayList<>();
+        String[] columns = new String[] {
+                "Restaurant_ID", "Name", "Style_Of_Food",
+                "Location", "Minimum_Order_Charge"
+        };
+
+        Cursor cursor = db.query(DB_TABLE, columns, null, null, null, null, null);
+
+        try {
+            while (cursor.moveToNext()) {
+                String record = "";
+                record = record + cursor.getString(0) + ", "
+                        + cursor.getString(1) + ", "
+                        + cursor.getString(2) + ", "
+                        + cursor.getString(3) + ", "
+                        + cursor.getDouble(4) + "\n";
+
+                RestaurantInfoRows.add(record);
+            }
+        } finally {
+            cursor.close();
+        }
+
+        return RestaurantInfoRows;
+    }
     // To clear records of Restaurant
     public void clearRecordsRestaurant()
     {
         db = helper.getWritableDatabase();
         db.delete(DB_TABLE, null, null);
     }
-    // To Update database to show restaurant rows
+    // To Update database to show restaurant rows - Original
+    /*
     public void updateRowsRestaurant(String id, String n, String sf, String loc, Double moc){
         ContentValues values = new ContentValues();
 
@@ -105,6 +138,30 @@ public class RestaurantDataBaseManager {
         int rowsUpdated = db.update(DB_TABLE, values, "code = " + id, null);
 
     }
+    */
+    // To Update database to show restaurant rows
+    public int updateRowsRestaurant(String id, String n, String sf, String loc, Double moc) {
+        ContentValues values = new ContentValues();
+
+        values.put("Name", n);
+        values.put("Style_Of_Food", sf);
+        values.put("Location", loc);
+        values.put("Minimum_Order_Charge", moc);
+
+        int rowsUpdated = db.update(
+                DB_TABLE,
+                values,
+                "Restaurant_ID = ?",
+                new String[]{id}
+        );
+
+        if (rowsUpdated == 0) {
+            Log.e("RestaurantDatabase", "No restaurant found with ID: " + id);
+        }
+
+        return rowsUpdated;
+    }
+
     public class SQLHelper extends SQLiteOpenHelper {
         public SQLHelper (Context c) {
             super(c, DB_NAME, null, DB_VERSION);
@@ -133,14 +190,31 @@ public class RestaurantDataBaseManager {
         SQLiteDatabase db = this.helper.getReadableDatabase();
         return db.rawQuery("SELECT * FROM " + DB_TABLE, null);
     }
-    /* Attempt at getting Restaurant Data based on restaurant ID
+
     public Cursor getResByID(String resID) {
-        SQLiteDatabase db = this.helper.getWritableDatabase();
-        String query = "SELECT * FROM" + DB_TABLE + " WHERE " + resID + " = ?";
-        return db.rawQuery(query, new String[]{resID});
+        SQLiteDatabase db = this.helper.getReadableDatabase();
+
+        return db.query(
+                DB_TABLE,
+                null,
+                "Restaurant_ID = ?",
+                new String[]{resID},
+                null,
+                null,
+                null
+        );
     }
 
-     */
+    // To delete restaurant records based on restaurant ID
+    public int deleteRes(String resID) {
+        SQLiteDatabase db = this.helper.getWritableDatabase();
+
+        return db.delete(
+                DB_TABLE,
+                "Restaurant_ID = ?",
+                new String[]{resID}
+        );
+    }
     /* Attempt at updating restaurant records based on restaurant ID
     public int updateRes (String resID, ContentValues values) {
         SQLiteDatabase db = this.helper.getWritableDatabase();
