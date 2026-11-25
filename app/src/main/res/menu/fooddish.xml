@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.example.databasetextdisplay.FoodDishScreen">
+
+    <item android:id="@+id/adminHome"
+        android:title="To Admin Home Screen"
+        android:orderInCategory="100" app:showAsAction="ifRoom"/>
+    <item android:id="@+id/addFoodDishRecord"
+        android:title="Add Food/Dish Record"
+        android:orderInCategory="100" app:showAsAction="ifRoom" />
+    <item android:id="@+id/viewFoodDishRecords"
+        android:title="View Food/Dish Record"
+        android:orderInCategory="100" app:showAsAction="ifRoom" />
+    <item android:id="@+id/editFoodDishRecord"
+        android:title="Edit Food/Dish Record"
+        android:orderInCategory="100" app:showAsAction="ifRoom" />
+
+</menu>

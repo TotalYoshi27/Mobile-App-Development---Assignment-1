@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ViewRestaurant">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingTop="60dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/dis_response" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/prodRec"
+            android:layout_width="match_parent"
+            android:layout_height="450dp" />
+
+        <Button
+            android:id="@+id/showRec"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Show Records" />
+        <Button
+            android:id="@+id/clearRec"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Clear All Records" />
+    </LinearLayout>
+
+</FrameLayout>

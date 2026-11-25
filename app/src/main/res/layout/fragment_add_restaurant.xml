@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".AddRestaurant">
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingTop="60dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/response" />
+
+        <TableLayout
+            android:id="@+id/add_table"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="40dp">
+            <TableRow>
+                <TextView
+                    android:text="Restaurant ID:"
+                    android:padding="3dip" />
+                <EditText
+                    android:id="@+id/restaurant_ID_txt"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+            </TableRow>
+            <TableRow>
+                <TextView
+                    android:text="Restaurant Name:"
+                    android:padding="3dip" />
+                <EditText
+                    android:id="@+id/restaurant_name_txt"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minWidth="150dip" />
+            </TableRow>
+            <TableRow>
+                <TextView
+                    android:text="Style of Food:"
+                    android:padding="3dp" />
+                <EditText
+                    android:id="@+id/food_style_txt"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minWidth="150dip" />
+            </TableRow>
+            <TableRow>
+                <TextView
+                    android:text="Location:"
+                    android:padding="3dp" />
+                <EditText
+                    android:id="@+id/location_txt"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minWidth="150dip" />
+            </TableRow>
+            <TableRow>
+                <TextView
+                    android:text="Minimum Order Charge:"
+                    android:padding="3dp" />
+                <EditText
+                    android:id="@+id/min_order_charge_txt"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minWidth="150dip" />
+            </TableRow>
+            <TableRow>
+                <Button
+                    android:id="@+id/add_button"
+                    android:text="Add Restaurant Record"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="3dip" />
+            </TableRow>
+        </TableLayout>
+    </LinearLayout>
+
+</FrameLayout>

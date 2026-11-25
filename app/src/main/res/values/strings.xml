@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">Assignment1</string>
+    <string-array name="FoodStyle">
+
+        <item>Thai</item>
+        <item>Chinese</item>
+        <item>Australian</item>
+        <item>Italian</item>
+
+    </string-array>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+</resources>

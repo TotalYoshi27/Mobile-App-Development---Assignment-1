@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.example.databasetextdisplay.OrderScreen">
+
+    <item android:id="@+id/CustomerHome"
+        android:title="To Customer Home Scren"
+        android:orderInCategory="100" app:showAsAction="ifRoom" />
+    <item android:id="@+id/AddOrder"
+        android:title="Add Order"
+        android:orderInCategory="100" app:showAsAction="ifRoom" />
+    <item android:id="@+id/viewOrder"
+        android:title="View Order"
+        android:orderInCategory="100" app:showAsAction="ifRoom" />
+    <item android:id="@+id/editOrder"
+        android:title="Edit Order"
+        android:orderInCategory="100" app:showAsAction="ifRoom" />
+
+</menu>

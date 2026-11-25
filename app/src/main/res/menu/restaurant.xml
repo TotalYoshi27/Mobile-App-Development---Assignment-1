@@ -1,0 +1,19 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.example.databasetextdisplay.RestaurantScreen">
+
+    <item android:id="@+id/adminHome"
+        android:title="To Admin Home Screen"
+        android:orderInCategory="100" app:showAsAction="ifRoom"/>
+    <item android:id="@+id/addResRecord"
+        android:title="Add Restaurant Record"
+        android:orderInCategory="100" app:showAsAction="ifRoom" />
+    <item android:id="@+id/viewResRecords"
+        android:title="View Restaurant Record"
+        android:orderInCategory="100" app:showAsAction="ifRoom" />
+    <item android:id="@+id/editResRecords"
+        android:title="Edit Restaurant Record"
+        android:orderInCategory="100" app:showAsAction="ifRoom" />
+
+</menu>
