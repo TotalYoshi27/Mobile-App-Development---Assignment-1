@@ -102,9 +102,16 @@ public class ViewFoodDish extends Fragment {
             mydManger.clearRecords();
             displayMessage.setText("All Records are removed");
             //clear tableContent
-            tableContent.clear();
+            //tableContent.clear();
             //remove all rows
-            FoodDishRecord.removeAllViews();
+            //FoodDishRecord.removeAllViews();
+            if (tableContent != null) {
+                tableContent.clear();
+
+                if (FoodDishRecord.getAdapter() != null) {
+                    FoodDishRecord.getAdapter().notifyDataSetChanged();
+                }
+            }
         });
         return manageView;
     }

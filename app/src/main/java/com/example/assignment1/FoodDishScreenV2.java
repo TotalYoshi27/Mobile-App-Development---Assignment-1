@@ -44,7 +44,7 @@ public class FoodDishScreenV2 extends AppCompatActivity {
         }
         if (id == R.id.editFoodDishRecord){
             //load Edit Record Fragment that has entry form
-            loadFragment(new SelectEditRestaurantV2());
+            loadFragment(new SelectEditFoodDish());
             return true;
         } else if(id == R.id.adminHome) {
             //To go back to main admin screen

@@ -62,7 +62,7 @@
             </TableRow>
             <TableRow>
                 <TextView
-                    android:text="Minimum Order Charge:"
+                    android:text="Minimum Order Charge ($):"
                     android:padding="3dp" />
                 <EditText
                     android:id="@+id/min_order_charge_txt"

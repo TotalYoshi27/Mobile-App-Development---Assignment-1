@@ -5,7 +5,7 @@
     tools:context="com.example.databasetextdisplay.OrderScreen">
 
     <item android:id="@+id/CustomerHome"
-        android:title="To Customer Home Scren"
+        android:title="Logout"
         android:orderInCategory="100" app:showAsAction="ifRoom" />
     <item android:id="@+id/AddOrder"
         android:title="Add Order"
