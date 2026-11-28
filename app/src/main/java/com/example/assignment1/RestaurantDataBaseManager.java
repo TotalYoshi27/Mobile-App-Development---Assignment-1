@@ -1,3 +1,4 @@
+
 package com.example.assignment1;
 
 import android.content.ContentValues;
@@ -17,14 +18,15 @@ public class RestaurantDataBaseManager {
 
 
     // Layout of Restaurant Table
-    public static final int DB_VERSION = 1;
-    private static final String CREATE_TABLE = "CREATE TABLE " + DB_TABLE +
+    public static final int DB_VERSION = 2;
+    private static final String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS " + DB_TABLE +
             " (Restaurant_ID String PRIMARY KEY, Name TEXT, Style_Of_Food TEXT, Location TEXT, " +
-            "Minimum_Order_Charge DOUBLE);";
+            "Minimum_Order_Charge DOUBLE, image_uri TEXT);";
 
-    private static final String CREATE_TABLE1 = "CREATE TABLE " + DB_TABLE1 +
+    private static final String CREATE_TABLE1 = "CREATE TABLE IF NOT EXISTS " + DB_TABLE1 +
             " (food_dish_ID String PRIMARY KEY, dish_name TEXT, restaurant TEXT, " +
-            "main_ingredients TEXT, " + "price DOUBLE);";
+            "main_ingredients TEXT, " + "price DOUBLE, image_uri TEXT);";
+
     // Declare Variables
     private SQLHelper helper;
     private SQLiteDatabase db;
@@ -42,13 +44,20 @@ public class RestaurantDataBaseManager {
         db = helper.getReadableDatabase();
         return this;
     }
+
     // To Close restaurant database
     public void close() {
 
         helper.close();
     }
+
     //To add rows the Restaurant table
     public boolean addRow(String id, String n, String sf, String loc, Double moc) {
+        return addRow(id, n, sf, loc, moc, null);
+    }
+
+    // To add rows the Restaurant table including a restaurant image
+    public boolean addRow(String id, String n, String sf, String loc, Double moc, String imageUri) {
         synchronized(this.db) {
 
             ContentValues newRestaurantInfo = new ContentValues();
@@ -57,6 +66,8 @@ public class RestaurantDataBaseManager {
             newRestaurantInfo.put("Style_Of_Food", sf);
             newRestaurantInfo.put("Location", loc);
             newRestaurantInfo.put("Minimum_Order_Charge", moc);
+            newRestaurantInfo.put("image_uri", imageUri);
+
             try {
                 db.insertOrThrow(DB_TABLE, null, newRestaurantInfo);
             } catch (Exception e) {
@@ -119,12 +130,14 @@ public class RestaurantDataBaseManager {
 
         return RestaurantInfoRows;
     }
+
     // To clear records of Restaurant
     public void clearRecordsRestaurant()
     {
         db = helper.getWritableDatabase();
         db.delete(DB_TABLE, null, null);
     }
+
     // To Update database to show restaurant rows - Original
     /*
     public void updateRowsRestaurant(String id, String n, String sf, String loc, Double moc){
@@ -139,6 +152,7 @@ public class RestaurantDataBaseManager {
 
     }
     */
+
     // To Update database to show restaurant rows
     public int updateRowsRestaurant(String id, String n, String sf, String loc, Double moc) {
         ContentValues values = new ContentValues();
@@ -147,6 +161,30 @@ public class RestaurantDataBaseManager {
         values.put("Style_Of_Food", sf);
         values.put("Location", loc);
         values.put("Minimum_Order_Charge", moc);
+
+        int rowsUpdated = db.update(
+                DB_TABLE,
+                values,
+                "Restaurant_ID = ?",
+                new String[]{id}
+        );
+
+        if (rowsUpdated == 0) {
+            Log.e("RestaurantDatabase", "No restaurant found with ID: " + id);
+        }
+
+        return rowsUpdated;
+    }
+
+    // To Update database to show restaurant rows including a restaurant image
+    public int updateRowsRestaurant(String id, String n, String sf, String loc, Double moc, String imageUri) {
+        ContentValues values = new ContentValues();
+
+        values.put("Name", n);
+        values.put("Style_Of_Food", sf);
+        values.put("Location", loc);
+        values.put("Minimum_Order_Charge", moc);
+        values.put("image_uri", imageUri);
 
         int rowsUpdated = db.update(
                 DB_TABLE,
@@ -173,15 +211,56 @@ public class RestaurantDataBaseManager {
             db.execSQL(CREATE_TABLE);
             db.execSQL(CREATE_TABLE1);
 
+            // Create CustomerOrders table
+            db.execSQL("CREATE TABLE IF NOT EXISTS CustomerOrders (" +
+                    "order_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    "customer_username TEXT NOT NULL, " +
+                    "order_date TEXT NOT NULL, " +
+                    "order_details TEXT NOT NULL, " +
+                    "total DOUBLE NOT NULL);");
+
         }
 
         @Override
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-            // Drop old tables if exist
-            db.execSQL("DROP TABLE IF EXISTS " + DB_TABLE); // Restaurant Table
-            db.execSQL("DROP TABLE IF EXISTS " + DB_TABLE1); // FoodDish Table
+            // Add new columns without deleting existing records
+            if (oldVersion < 2) {
+
+                addColumnIfMissing(db, DB_TABLE, "image_uri", "TEXT");
+                addColumnIfMissing(db, DB_TABLE1, "image_uri", "TEXT");
+
+                // Create CustomerOrders table
+                db.execSQL("CREATE TABLE IF NOT EXISTS CustomerOrders (" +
+                        "order_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                        "customer_username TEXT NOT NULL, " +
+                        "order_date TEXT NOT NULL, " +
+                        "order_details TEXT NOT NULL, " +
+                        "total DOUBLE NOT NULL);");
+            }
 
             onCreate(db);
+        }
+
+        // To check whether a column already exists before adding it
+        private void addColumnIfMissing(SQLiteDatabase db, String table, String column, String type) {
+
+            Cursor cursor = db.rawQuery("PRAGMA table_info(" + table + ")", null);
+            boolean columnExists = false;
+
+            try {
+                while (cursor.moveToNext()) {
+                    if (column.equalsIgnoreCase(cursor.getString(cursor.getColumnIndexOrThrow("name")))) {
+                        columnExists = true;
+                        break;
+                    }
+                }
+            } finally {
+                cursor.close();
+            }
+
+            if (!columnExists) {
+                db.execSQL("ALTER TABLE " + table + " ADD COLUMN " + column + " " + type);
+            }
         }
     }
 
@@ -215,6 +294,7 @@ public class RestaurantDataBaseManager {
                 new String[]{resID}
         );
     }
+
     /* Attempt at updating restaurant records based on restaurant ID
     public int updateRes (String resID, ContentValues values) {
         SQLiteDatabase db = this.helper.getWritableDatabase();
@@ -226,5 +306,5 @@ public class RestaurantDataBaseManager {
         SQLiteDatabase db = this.helper.getWritableDatabase();
         return db.delete()
     }
-    */
+     */
 }

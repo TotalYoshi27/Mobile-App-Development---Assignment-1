@@ -1,3 +1,4 @@
+
 package com.example.assignment1;
 
 import android.content.ContentValues;
@@ -15,10 +16,10 @@ public class FoodDishDatabaseV2 {
 
 
     // Layout of FoodDish Table
-    public static final int DB_VERSION = 1;
-    private static final String CREATE_TABLE = "CREATE TABLE " + DB_TABLE1 +
+    public static final int DB_VERSION = 2;
+    private static final String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS " + DB_TABLE1 +
             " (food_dish_ID String PRIMARY KEY, dish_name TEXT, restaurant TEXT, " +
-            "main_ingredients TEXT, " + "price DOUBLE);";
+            "main_ingredients TEXT, price DOUBLE, image_uri TEXT);";
 
     // Declare Variables
     private FoodDishDatabaseV2.SQLHelper helper;
@@ -30,18 +31,26 @@ public class FoodDishDatabaseV2 {
         helper = new FoodDishDatabaseV2.SQLHelper(c);
         this.db = helper.getWritableDatabase();
     }
+
     // To Open FoodDish database
     public FoodDishDatabaseV2 openReadable() throws android.database.SQLException {
         helper = new FoodDishDatabaseV2.SQLHelper(context);
         db = helper.getReadableDatabase();
         return this;
     }
+
     // To close FoodDish Database
     public void close() {
         helper.close();
     }
+
     //To add rows for the FoodDish table
     public boolean addRowFoodDish(String id, String dn, String res, String ingredients, Double price) {
+        return addRowFoodDish(id, dn, res, ingredients, price, null);
+    }
+
+    // To add rows for the FoodDish table including an image
+    public boolean addRowFoodDish(String id, String dn, String res, String ingredients, Double price, String imageUri) {
         synchronized(this.db) {
 
             ContentValues newFoodDishInfo = new ContentValues();
@@ -50,6 +59,7 @@ public class FoodDishDatabaseV2 {
             newFoodDishInfo.put("restaurant", res);
             newFoodDishInfo.put("main_ingredients", ingredients);
             newFoodDishInfo.put("price", price);
+            newFoodDishInfo.put("image_uri", imageUri);
 
             try {
                 db.insertOrThrow(DB_TABLE1, null, newFoodDishInfo);
@@ -62,6 +72,7 @@ public class FoodDishDatabaseV2 {
             return true;
         }
     }
+
     // To retrieve foodDish data from array
     public ArrayList<String> retrieveRowsFoodDish() {
 
@@ -108,6 +119,7 @@ public class FoodDishDatabaseV2 {
         db = helper.getWritableDatabase();
         db.delete(DB_TABLE1, null, null);
     }
+
     // To Update database to show foodDish rows
     public int updateFoodDishRows(String id, String dn, String res, String ingred, Double price){
         ContentValues values = new ContentValues();
@@ -117,6 +129,30 @@ public class FoodDishDatabaseV2 {
         values.put("main_ingredients", ingred);
         values.put("price", price);
 
+
+        int rowsUpdated = db.update(
+                DB_TABLE1, values,
+                "food_dish_ID = ?",
+                new String[]{id}
+        );
+
+        if (rowsUpdated == 0) {
+            Log.e("FoodDishDatabase", "No Food/Dish found with ID: " + id);
+        }
+
+        return rowsUpdated;
+
+    }
+
+    // To Update database to show foodDish rows including an image
+    public int updateFoodDishRows(String id, String dn, String res, String ingred, Double price, String imageUri){
+        ContentValues values = new ContentValues();
+
+        values.put("dish_name", dn);
+        values.put("restaurant", res);
+        values.put("main_ingredients", ingred);
+        values.put("price", price);
+        values.put("image_uri", imageUri);
 
         int rowsUpdated = db.update(
                 DB_TABLE1, values,
@@ -143,15 +179,66 @@ public class FoodDishDatabaseV2 {
 
             db.execSQL(CREATE_TABLE);
 
+            // Create Restaurant table if it does not already exist
+            db.execSQL("CREATE TABLE IF NOT EXISTS Restaurant (" +
+                    "Restaurant_ID String PRIMARY KEY, Name TEXT, Style_Of_Food TEXT, Location TEXT, " +
+                    "Minimum_Order_Charge DOUBLE, image_uri TEXT);");
+
+            // Create CustomerOrders table
+            db.execSQL("CREATE TABLE IF NOT EXISTS CustomerOrders (" +
+                    "order_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    "customer_username TEXT NOT NULL, " +
+                    "order_date TEXT NOT NULL, " +
+                    "order_details TEXT NOT NULL, " +
+                    "total DOUBLE NOT NULL);");
+
         }
 
         @Override
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-            Log.w("FoodDish table", "Upgrading database i.e. dropping table and re-creating it");
-            db.execSQL("DROP TABLE IF EXISTS " + DB_TABLE1);
+
+            Log.w("FoodDish table", "Upgrading database to add image and order history columns");
+
+            // Add image column to existing FoodDish table
+            if (oldVersion < 2) {
+                addColumnIfMissing(db, DB_TABLE1, "image_uri", "TEXT");
+                addColumnIfMissing(db, "Restaurant", "image_uri", "TEXT");
+
+                // Create CustomerOrders table
+                db.execSQL("CREATE TABLE IF NOT EXISTS CustomerOrders (" +
+                        "order_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                        "customer_username TEXT NOT NULL, " +
+                        "order_date TEXT NOT NULL, " +
+                        "order_details TEXT NOT NULL, " +
+                        "total DOUBLE NOT NULL);");
+            }
+
             onCreate(db);
         }
+
+        // To check whether a column already exists before adding it
+        private void addColumnIfMissing(SQLiteDatabase db, String table, String column, String type) {
+
+            Cursor cursor = db.rawQuery("PRAGMA table_info(" + table + ")", null);
+            boolean columnExists = false;
+
+            try {
+                while (cursor.moveToNext()) {
+                    if (column.equalsIgnoreCase(cursor.getString(cursor.getColumnIndexOrThrow("name")))) {
+                        columnExists = true;
+                        break;
+                    }
+                }
+            } finally {
+                cursor.close();
+            }
+
+            if (!columnExists) {
+                db.execSQL("ALTER TABLE " + table + " ADD COLUMN " + column + " " + type);
+            }
+        }
     }
+
     // To gather all records of foodDish Database
     public Cursor getAllFoodDishRecords() {
         SQLiteDatabase db = this.helper.getReadableDatabase();
